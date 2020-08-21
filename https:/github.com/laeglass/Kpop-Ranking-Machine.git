@@ -1,0 +1,417 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="zn-tw">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=big5">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<link rel="stylesheet" href="../scrstyle.css" type="text/css">
+<title>排名機（Wanna One）</title>
+<script type="text/javascript">
+<!--
+//+++++++++++++++++++++
+var bName= navigator.appName.charAt(0);
+var iIE = false;
+var iNN = false;
+var iOP = false;
+if (bName=="O") { iOP = true; }
+else if (bName=="M") { iIE = true; }
+else if (bName=="N") { iNN = true; }
+//+++++++++++++++++++++++++++++++++++++
+
+//團體
+var numMember = 11;
+var lstMember = new Array();
+var parent = new Array();
+var equal = new Array();
+var rec = new Array();
+var cmp1,cmp2;
+var head1,head2;
+var nrec;
+
+var numQuestion;
+var totalSize;
+var finishSize;
+var finishFlag;
+
+//變數初期化+++++++++++++++++++++++++
+function initList(){
+	var n = 0;
+	var mid;
+	var i;
+	var good;
+
+	//所有配列
+	lstMember[n] = new Array();
+	for (i=0; i<numMember; i++) {
+		lstMember[n][i] = Math.floor(Math.random()*numMember)+1;
+		good = false;
+		while (!good) {
+		good = true;
+			for (j=0; j<i; j++) {
+				if(lstMember[n][i]==lstMember[n][j]) {
+					good = false;
+					lstMember[n][i]++;
+					if(lstMember[n][i]>numMember) {
+						lstMember[n][i]=1;
+					}
+					break;
+				}
+			}
+		}
+	}
+	parent[n] = -1;
+	totalSize = 0;
+	n++;
+
+	for (i=0; i<lstMember.length; i++) {
+		//
+		//
+		if(lstMember[i].length>=2) {
+			mid = Math.ceil(lstMember[i].length/2);
+			lstMember[n] = new Array();
+			lstMember[n] = lstMember[i].slice(0,mid);
+			totalSize += lstMember[n].length;
+			parent[n] = i;
+			n++;
+			lstMember[n] = new Array();
+			lstMember[n] = lstMember[i].slice(mid,lstMember[i].length);
+			totalSize += lstMember[n].length;
+			parent[n] = i;
+			n++;
+		}
+	}
+
+	//
+	for (i=0; i<numMember; i++) {
+		rec[i] = 0;
+	}
+	nrec = 0;
+
+	//
+	//
+	// 
+	for (i=0; i<=numMember; i++) {
+		equal[i] = 0;
+	}
+
+	cmp1 = lstMember.length-2;
+	cmp2 = lstMember.length-1;
+	head1 = 0;
+	head2 = 0;
+	numQuestion = 1;
+	finishSize = 0;
+	finishFlag = 0;
+}
+
+//+++++++++++++++++++++++
+//flag：
+//  -1：
+//   0：
+//   1：
+function sortList(flag){
+	var i;
+	var str;
+
+	//rec保存
+	if (flag>0) {
+		rec[nrec] = lstMember[cmp1][head1];
+		head1++;
+		nrec++;
+		finishSize++;
+		while (equal[rec[nrec-1]]!=0) {
+			rec[nrec] = lstMember[cmp1][head1];
+			head1++;
+			nrec++;
+			finishSize++;
+		}
+	}
+	else if (flag<0) {
+		rec[nrec] = lstMember[cmp2][head2];
+		head2++;
+		nrec++;
+		finishSize++;
+		while (equal[rec[nrec-1]]!=0) {
+			rec[nrec] = lstMember[cmp2][head2];
+			head2++;
+			nrec++;
+			finishSize++;
+		}
+	}
+	else {
+		rec[nrec] = lstMember[cmp1][head1];
+		head1++;
+		nrec++;
+		finishSize++;
+		while (equal[rec[nrec-1]]!=0) {
+			rec[nrec] = lstMember[cmp1][head1];
+			head1++;
+			nrec++;
+			finishSize++;
+		}
+		equal[rec[nrec-1]] = lstMember[cmp2][head2];
+		rec[nrec] = lstMember[cmp2][head2];
+		head2++;
+		nrec++;
+		finishSize++;
+		while (equal[rec[nrec-1]]!=0) {
+			rec[nrec] = lstMember[cmp2][head2];
+			head2++;
+			nrec++;
+			finishSize++;
+		}
+		//alert(equal);
+	}
+
+	//
+	if (head1<lstMember[cmp1].length && head2==lstMember[cmp2].length) {
+		//cmp2 - cmp1
+		while (head1<lstMember[cmp1].length){
+			rec[nrec] = lstMember[cmp1][head1];
+			head1++;
+			nrec++;
+			finishSize++;
+		}
+	} else if (head1==lstMember[cmp1].length && head2<lstMember[cmp2].length) {
+		//cmp1 - cmp2
+		while (head2<lstMember[cmp2].length){
+			rec[nrec] = lstMember[cmp2][head2];
+			head2++;
+			nrec++;
+			finishSize++;
+		}
+	}
+
+	//
+	//
+	if (head1==lstMember[cmp1].length && head2==lstMember[cmp2].length) {
+		for (i=0; i<lstMember[cmp1].length+lstMember[cmp2].length; i++) {
+			lstMember[parent[cmp1]][i] = rec[i];
+		}
+		lstMember.pop();
+		lstMember.pop();
+		cmp1 = cmp1-2;
+		cmp2 = cmp2-2;
+		head1 = 0;
+		head2 = 0;
+
+		//
+		if (head1==0 && head2==0) {
+			for (i=0; i<numMember; i++) {
+				rec[i] = 0;
+			}
+			nrec = 0;
+		}
+	}
+
+	if (cmp1<0) {
+		//alert(lstMember[0]);
+		str = "Battle No."+(numQuestion)+"<br>"+Math.floor(finishSize*100/totalSize)+"％ sorted.";
+		if (iIE||iOP) {
+			document.all["battleNumber"].innerHTML = str;
+		}
+  	else if(iNN){
+			document.getElementById("battleNumber").innerHTML = str;
+		}
+
+		showResult();
+		finishFlag = 1;
+	} else {
+		showImage();
+	}
+}
+
+//結果表示+++++++++++++++++++++++++++
+function showResult() {
+	var ranking = 1;
+	var sameRank = 1;
+	var str = "";
+	var i;
+
+	str += "<table style=\"width:200px; font-size:14px; line-height:120%; margin-left:auto; margin-right:auto; border:1px solid #666666; border-collapse:collapse\" align=\"center\">";
+	str += "<tr><td style=\"color:#ffffff; background-color:#666666; text-align:center;\">名次<\/td><td style=\"color:#ffffff; background-color:#666666; text-align:center;\">偶像<\/td><\/tr>";
+
+	for (i=numMember-1; i>=0; i--) {
+		str += "<tr><td style=\"border:1px solid #666666; text-align:right; padding-right:5px;\">"+ranking+"<\/td><td style=\"border:1px solid #666666; padding-left:5px;\">"+toName(lstMember[0][i])+"<\/td><\/tr>";
+		if (i>=1) {
+			if (equal[lstMember[0][i-1]]==lstMember[0][i]) {
+				sameRank++;
+			} else {
+				ranking += sameRank;
+				sameRank = 1;
+			}
+		}
+	}
+	str += "<\/table>";
+
+	if (iIE||iOP) {
+		document.all["resultField"].innerHTML = str;
+	}
+  else if(iNN){
+		document.getElementById("resultField").innerHTML = str;
+	}
+}
+
+//比較表示+++++++++++++++++++
+function showImage() {
+	var str0 = "Battle No."+(numQuestion)+"<br>"+Math.floor(finishSize*100/totalSize)+"％ sorted.";
+	var str1 = ""+toDisp(lstMember[cmp1][head1]);
+	var str2 = ""+toDisp(lstMember[cmp2][head2]);
+
+	if (iIE||iOP) {
+		document.all["battleNumber"].innerHTML = str0;
+		document.all["leftField"].innerHTML = str1;
+		document.all["rightField"].innerHTML = str2;
+	}
+  else if(iNN){
+		document.getElementById("battleNumber").innerHTML = str0;
+		document.getElementById("leftField").innerHTML = str1;
+		document.getElementById("rightField").innerHTML = str2;
+	}
+	numQuestion++;
+}
+
+//團名+++++++++++++++++++++++++
+function toDisp(n){
+	var str = toName(n)+toUnit(n);
+	return str;
+}
+
+//團體轉換+++++++++++++++++++++++++++
+function toName(n) {
+	var str;
+	switch(n) {
+		case 1: str="尹智聖";break;
+		case 2: str="河成雲";break;
+		case 3: str="黃旼炫";break;
+		case 4: str="邕聖祐";break;
+		case 5: str="金在奐";break;
+		case 6: str="朴志訓";break;
+		case 7: str="賴冠霖";break;
+		case 8: str="李大輝";break;
+		case 9: str="裴珍映";break;
+		case 10: str="姜丹尼爾";break;
+		case 11: str="朴佑鎮";break;
+	}
+	return str;
+}
+
+//轉換+++++++++++++++++++++++++++
+function toUnit(n) {
+	var str;
+	var sw;
+	switch(n) {
+		case 1: sw=0;break;
+		case 2: sw=0;break;
+		case 3: sw=0;break;
+		case 4: sw=0;break;
+		case 5: sw=0;break;
+		case 6: sw=0;break;
+		case 7: sw=0;break;
+		case 8: sw=0;break;
+		case 9: sw=0;break;
+		case 10: sw=0;break;
+		case 11: sw=0;break;
+		case 12: sw=0;break;
+
+	}
+	switch(sw) {
+		case 0: str="";break;
+		default: str=""+n;
+	}
+	return str;
+}
+//-->
+</script>
+</head>
+
+<body>
+<div class="field">
+
+<!--##############################################################-->
+<div class="main">
+<!--##############################################################-->
+<div class="cont_in">
+<!--+++++????????+++++++++++++++++++++++++++++++++++++++++-->
+<body text="#000000" bgcolor="#ffffff" link="#DC0300" vlink="#DC0300" alink="#DC0300"> 
+<p align="left"><span class="style2"><a href="easy.html"></a><br>
+  <a href="complex.html"></a>　　</span></p> 
+<p align="center"><font size="5" >排名機（Wanna One）</font></p> 
+<p align="center"><font color="#0200A0" font size="4" ></font></p> 
+
+	
+
+
+
+<!--==============================================================-->
+<br>
+<table style="font-size:16px; font-family:'微軟正黑體',sans-serif; text-align:center; vertical-align:middle; margin-left:auto; margin-right:auto; border-collapse:separate; border-spacing:20px 5px;" align="center">
+	<tr>
+
+		<td id="battleNumber" colspan="3" style="padding-bottom: 10px;">
+			&nbsp;
+		</td>
+	</tr>
+	<tr>
+		<td id="leftField" style="background-color:#B0AFFF; width:180px; height:180px; border:3px double #666666;" onClick="if(finishFlag==0)sortList(-1);" rowspan="3">
+			&nbsp;
+		</td>
+		<td id="middleField" style="background-color:#FDFF73; width:140px; border:1px solid #666666;" onClick="if(finishFlag==0)sortList(0);">
+
+			都喜歡
+		</td>
+		<td id="rightField" style="background-color:#FFAFFE; width:180px; height:180px; border:3px double #666666;" onClick="if(finishFlag==0)sortList(1);" rowspan="3">
+			&nbsp;
+		</td>
+	</tr>
+	<tr>
+		<td id="middleField" style="background-color:#CDFFCE; width:140px; border:1px solid #666666;" onClick="if(finishFlag==0)sortList(0);">
+			平手
+		</td>
+
+	</tr>
+	<tr>
+		<td id="middleField" style="background-color:#FFE7CD; width:140px; border:1px solid #666666;" onClick="if(finishFlag==0)sortList(0);">
+			不認識
+		</td>
+
+	</tr>
+</table><br><br>
+<div id="resultField" style="text-align:center;">
+
+
+</div>
+
+
+
+<div class="author" style="text-align:right;">
+
+<br>
+
+</div>
+<script type="text/javascript">
+<!--
+	initList();
+	showImage();
+//-->
+</script>
+
+<!--==============================================================-->
+</div><!--class="cont_in"-->
+</div><!--class="main"-->
+
+<div class="footer">&nbsp;</div>
+
+</div><!--class="field"-->
+
+<script type="text/javascript"><!--
+var fc2footerparam = 'charset=' + (document.charset ? document.charset : document.characterSet) + '&url=' + document.location + '&service=0&r=' + Math.floor(Math.random()*99999999999);
+var fc2footertag = '<' + 'script src="//vip.chps-api.fc2.com/apis/footer/?' + fc2footerparam + '" charset="UTF-8"><' + '/script>';
+document.write(fc2footertag);
+//--></script>
+<!-- FC2, inc.-->
+<img src="//media.fc2.com/counter_img.php?id=50" style="visibility:hidden" alt="inserted by FC2 system" width="0" height="0">
+<!-- FC2, inc.-->
+</body>
+</html>
