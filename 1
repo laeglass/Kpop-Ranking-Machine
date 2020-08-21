@@ -1,0 +1,672 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="zn-tw">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=big5">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<link rel="stylesheet" href="../scrstyle.css" type="text/css">
+<title>K POP 偶像排名機（加強版）</title>
+<script type="text/javascript">
+<!--
+//+++++++++++++++++++++
+var bName= navigator.appName.charAt(0);
+var iIE = false;
+var iNN = false;
+var iOP = false;
+if (bName=="O") { iOP = true; }
+else if (bName=="M") { iIE = true; }
+else if (bName=="N") { iNN = true; }
+//+++++++++++++++++++++++++++++++++++++
+
+//團體
+var numMember = 123;
+var lstMember = new Array();
+var parent = new Array();
+var equal = new Array();
+var rec = new Array();
+var cmp1,cmp2;
+var head1,head2;
+var nrec;
+
+var numQuestion;
+var totalSize;
+var finishSize;
+var finishFlag;
+
+//變數初期化+++++++++++++++++++++++++
+function initList(){
+	var n = 0;
+	var mid;
+	var i;
+	var good;
+
+	//所有配列
+	lstMember[n] = new Array();
+	for (i=0; i<numMember; i++) {
+		lstMember[n][i] = Math.floor(Math.random()*numMember)+1;
+		good = false;
+		while (!good) {
+		good = true;
+			for (j=0; j<i; j++) {
+				if(lstMember[n][i]==lstMember[n][j]) {
+					good = false;
+					lstMember[n][i]++;
+					if(lstMember[n][i]>numMember) {
+						lstMember[n][i]=1;
+					}
+					break;
+				}
+			}
+		}
+	}
+	parent[n] = -1;
+	totalSize = 0;
+	n++;
+
+	for (i=0; i<lstMember.length; i++) {
+		//
+		//
+		if(lstMember[i].length>=2) {
+			mid = Math.ceil(lstMember[i].length/2);
+			lstMember[n] = new Array();
+			lstMember[n] = lstMember[i].slice(0,mid);
+			totalSize += lstMember[n].length;
+			parent[n] = i;
+			n++;
+			lstMember[n] = new Array();
+			lstMember[n] = lstMember[i].slice(mid,lstMember[i].length);
+			totalSize += lstMember[n].length;
+			parent[n] = i;
+			n++;
+		}
+	}
+
+	//
+	for (i=0; i<numMember; i++) {
+		rec[i] = 0;
+	}
+	nrec = 0;
+
+	//
+	//
+	// 
+	for (i=0; i<=numMember; i++) {
+		equal[i] = 0;
+	}
+
+	cmp1 = lstMember.length-2;
+	cmp2 = lstMember.length-1;
+	head1 = 0;
+	head2 = 0;
+	numQuestion = 1;
+	finishSize = 0;
+	finishFlag = 0;
+}
+
+//+++++++++++++++++++++++
+//flag：
+//  -1：
+//   0：
+//   1：
+function sortList(flag){
+	var i;
+	var str;
+
+	//rec保存
+	if (flag>0) {
+		rec[nrec] = lstMember[cmp1][head1];
+		head1++;
+		nrec++;
+		finishSize++;
+		while (equal[rec[nrec-1]]!=0) {
+			rec[nrec] = lstMember[cmp1][head1];
+			head1++;
+			nrec++;
+			finishSize++;
+		}
+	}
+	else if (flag<0) {
+		rec[nrec] = lstMember[cmp2][head2];
+		head2++;
+		nrec++;
+		finishSize++;
+		while (equal[rec[nrec-1]]!=0) {
+			rec[nrec] = lstMember[cmp2][head2];
+			head2++;
+			nrec++;
+			finishSize++;
+		}
+	}
+	else {
+		rec[nrec] = lstMember[cmp1][head1];
+		head1++;
+		nrec++;
+		finishSize++;
+		while (equal[rec[nrec-1]]!=0) {
+			rec[nrec] = lstMember[cmp1][head1];
+			head1++;
+			nrec++;
+			finishSize++;
+		}
+		equal[rec[nrec-1]] = lstMember[cmp2][head2];
+		rec[nrec] = lstMember[cmp2][head2];
+		head2++;
+		nrec++;
+		finishSize++;
+		while (equal[rec[nrec-1]]!=0) {
+			rec[nrec] = lstMember[cmp2][head2];
+			head2++;
+			nrec++;
+			finishSize++;
+		}
+		//alert(equal);
+	}
+
+	//
+	if (head1<lstMember[cmp1].length && head2==lstMember[cmp2].length) {
+		//cmp2 - cmp1
+		while (head1<lstMember[cmp1].length){
+			rec[nrec] = lstMember[cmp1][head1];
+			head1++;
+			nrec++;
+			finishSize++;
+		}
+	} else if (head1==lstMember[cmp1].length && head2<lstMember[cmp2].length) {
+		//cmp1 - cmp2
+		while (head2<lstMember[cmp2].length){
+			rec[nrec] = lstMember[cmp2][head2];
+			head2++;
+			nrec++;
+			finishSize++;
+		}
+	}
+
+	//
+	//
+	if (head1==lstMember[cmp1].length && head2==lstMember[cmp2].length) {
+		for (i=0; i<lstMember[cmp1].length+lstMember[cmp2].length; i++) {
+			lstMember[parent[cmp1]][i] = rec[i];
+		}
+		lstMember.pop();
+		lstMember.pop();
+		cmp1 = cmp1-2;
+		cmp2 = cmp2-2;
+		head1 = 0;
+		head2 = 0;
+
+		//
+		if (head1==0 && head2==0) {
+			for (i=0; i<numMember; i++) {
+				rec[i] = 0;
+			}
+			nrec = 0;
+		}
+	}
+
+	if (cmp1<0) {
+		//alert(lstMember[0]);
+		str = "Battle No."+(numQuestion)+"<br>"+Math.floor(finishSize*100/totalSize)+"％ sorted.";
+		if (iIE||iOP) {
+			document.all["battleNumber"].innerHTML = str;
+		}
+  	else if(iNN){
+			document.getElementById("battleNumber").innerHTML = str;
+		}
+
+		showResult();
+		finishFlag = 1;
+	} else {
+		showImage();
+	}
+}
+
+//結果表示+++++++++++++++++++++++++++
+function showResult() {
+	var ranking = 1;
+	var sameRank = 1;
+	var str = "";
+	var i;
+
+	str += "<table style=\"width:200px; font-size:14px; line-height:120%; margin-left:auto; margin-right:auto; border:1px solid #666666; border-collapse:collapse\" align=\"center\">";
+	str += "<tr><td style=\"color:#ffffff; background-color:#666666; text-align:center;\">順次<\/td><td style=\"color:#ffffff; background-color:#666666; text-align:center;\">偶像<\/td><\/tr>";
+
+	for (i=numMember-1; i>=0; i--) {
+		str += "<tr><td style=\"border:1px solid #666666; text-align:right; padding-right:5px;\">"+ranking+"<\/td><td style=\"border:1px solid #666666; padding-left:5px;\">"+toName(lstMember[0][i])+"<\/td><\/tr>";
+		if (i>=1) {
+			if (equal[lstMember[0][i-1]]==lstMember[0][i]) {
+				sameRank++;
+			} else {
+				ranking += sameRank;
+				sameRank = 1;
+			}
+		}
+	}
+	str += "<\/table>";
+
+	if (iIE||iOP) {
+		document.all["resultField"].innerHTML = str;
+	}
+  else if(iNN){
+		document.getElementById("resultField").innerHTML = str;
+	}
+}
+
+//比較表示+++++++++++++++++++
+function showImage() {
+	var str0 = "Battle No."+(numQuestion)+"<br>"+Math.floor(finishSize*100/totalSize)+"％ sorted.";
+	var str1 = ""+toDisp(lstMember[cmp1][head1]);
+	var str2 = ""+toDisp(lstMember[cmp2][head2]);
+
+	if (iIE||iOP) {
+		document.all["battleNumber"].innerHTML = str0;
+		document.all["leftField"].innerHTML = str1;
+		document.all["rightField"].innerHTML = str2;
+	}
+  else if(iNN){
+		document.getElementById("battleNumber").innerHTML = str0;
+		document.getElementById("leftField").innerHTML = str1;
+		document.getElementById("rightField").innerHTML = str2;
+	}
+	numQuestion++;
+}
+
+//團名與經紀公司+++++++++++++++++++++++++
+function toDisp(n){
+	var str = toName(n)+toUnit(n);
+	return str;
+}
+
+//團體轉換+++++++++++++++++++++++++++
+function toName(n) {
+	var str;
+	switch(n) {
+		case 1: str="鄭振永";break;
+		case 2: str="CNU（申東佑）";break;
+		case 3: str="燦多（李征桓）";break;
+		case 4: str="Baro";break;
+		case 5: str="孔燦（孔燦植）";break;
+		case 6: str="Taeil（李泰欥）";break;
+		case 7: str="B-Bomb（李民赫）";break;
+		case 8: str="安宰孝";break;
+		case 9: str="U-Kwon（金有權）";break;
+		case 10: str="ZICO（禹智皓）";break;
+		case 11: str="P.O（表志勳）";break;
+		case 12: str="Ghun（建）";break;
+		case 13: str="TaeFung（颱風）";break;
+		case 14: str="HaeWon（海園）";break;
+		case 15: str="ZIN（真）";break;
+		case 16: str="SulHu（雪後）";break;
+		case 17: str="東玄";break;
+		case 18: str="正民（JungMin）";break;
+		case 19: str="賢星";break;
+		case 20: str="光旻";break;
+		case 21: str="榮旻";break;
+		case 22: str="民于（MinWoo）";break;
+		case 23: str="丁正均";break;
+		case 24: str="鄭承賢";break;
+		case 25: str="Soul J（李鍾旼）";break;
+		case 26: str="金相佑";break;
+		case 27: str="宋有鎮";break;
+		case 28: str="孟世昌";break;
+		case 29: str="JiSu";break;
+		case 30: str="Tagoon（宋旻浩）";break;
+		case 31: str="Yua（柳京沐）";break;
+		case 32: str="李建雨";break;
+		case 33: str="姜仁秀";break;
+		case 34: str="金世容";break;
+		case 35: str="姜俊圭（Jun Q）";break;
+		case 36: str="蔡秦碩";break;
+		case 37: str="金聖圭";break;
+		case 38: str="張東雨";break;
+		case 39: str="南優鉉";break;
+		case 40: str="Hoya（李浩沅）";break;
+		case 41: str="李成烈";break;
+		case 42: str="L（金明洙）";break;
+		case 43: str="李成鍾";break;
+		case 44: str="C.A.P（方旻洙）";break;
+		case 45: str="天地（李燦喜）";break;
+		case 46: str="L.Joe（李秉憲）";break;
+		case 47: str="Niel（安Daniel）";break;
+		case 48: str="Ricky（劉昌炫）";break;
+		case 49: str="創造（崔鍾顯）";break;
+		case 50: str="5ZiC";break;
+		case 51: str="Cream";break;
+		case 52: str="KangNam（滑川康男）";break;
+		case 53: str="SIMS（沈鐘洙）";break;
+		case 54: str="Aoora（朴根二）";break;
+		case 55: str="WooSang（禹相秀）";break;
+		case 56: str="JooWon（黃柱元）";break;
+		case 57: str="Hoik（鄭虎翼）";break;
+		case 58: str="Kimchi";break;
+		case 59: str="INATI（張仁泰）";break;
+		case 60: str="Day Day";break;
+		case 61: str="Dari";break;
+		case 62: str="Youngwon（李東林）";break;
+		case 63: str="JiSu";break;
+		case 64: str="Daniel";break;
+		case 65: str="Mika（秀訓）";break;
+		case 66: str="Karam（賢哲）";break;
+		case 67: str="炫敏";break;
+		case 68: str="仁俊";break;
+		case 69: str="Jay（志煥）";break;
+		case 70: str="俊英";break;
+		case 71: str="Kevin";break;
+		case 72: str="光熙";break;
+		case 73: str="時完";break;
+		case 74: str="泰憲";break;
+		case 75: str="熹哲";break;
+		case 76: str="旼佑";break;
+		case 77: str="炯植";break;
+		case 78: str="桐俊";break;
+		case 79: str="鄭容和";break;
+		case 80: str="李宗泫";break;
+		case 81: str="姜敏赫";break;
+		case 82: str="李正信";break;
+		case 83: str="徐榮俊";break;
+		case 84: str="HanByul（韓星）";break;
+		case 85: str="朴建宇";break;
+		case 86: str="金曉夕";break;
+		case 87: str="金廣淵";break;
+		case 88: str="李圭敏";break;
+		case 89: str="方容國";break;
+		case 90: str="HimChan";break;
+		case 91: str="劉永才";break;
+		case 92: str="正大賢";break;
+		case 93: str="文鐘業";break;
+		case 94: str="ZELO（最準烘）";break;
+		case 95: str="Aron";break;
+		case 96: str="BaekHo";break;
+		case 97: str="JR";break;
+		case 98: str="MinHyun";break;
+		case 99: str="Ren";break;
+		case 100: str="徐恩光";break;
+		case 101: str="李旼赫";break;
+		case 102: str="李昌燮";break;
+		case 103: str="任炫植";break;
+		case 104: str="Peniel（申東根）";break;
+		case 105: str="鄭鎰勳";break;
+		case 106: str="陸性材";break;
+		case 107: str="XIUMIN";break;
+		case 108: str="LuHan";break;
+		case 109: str="Kris（吳凡）";break;
+		case 110: str="Lay（張藝興）";break;
+		case 111: str="Chen";break;
+		case 112: str="TAO（黃子韜）";break;
+		case 113: str="SUHO";break;
+		case 114: str="BaekHyun";break;
+		case 115: str="ChanYeol";break;
+		case 116: str="D.O";break;
+		case 117: str="KAI";break;
+		case 118: str="SeHun";break;
+		case 119: str="張玄善";break;
+		case 120: str="朴太陽";break;
+		case 121: str="金熙在";break;
+		case 122: str="金東玟";break;
+		case 123: str="李斗煥";break;
+		default: str = "";
+	}
+	return str;
+}
+
+//轉換+++++++++++++++++++++++++++
+function toUnit(n) {
+	var str;
+	var sw;
+	switch(n) {
+		case 1: sw=0;break;
+		case 2: sw=0;break;
+		case 3: sw=0;break;
+		case 4: sw=0;break;
+		case 5: sw=0;break;
+		case 6: sw=1;break;
+		case 7: sw=1;break;
+		case 8: sw=1;break;
+		case 9: sw=1;break;
+		case 10: sw=1;break;
+		case 11: sw=1;break;
+		case 12: sw=2;break;
+		case 13: sw=2;break;
+		case 14: sw=2;break;
+		case 15: sw=2;break;
+		case 16: sw=2;break;
+		case 17: sw=3;break;
+		case 18: sw=3;break;
+		case 19: sw=3;break;
+		case 20: sw=3;break;
+		case 21: sw=3;break;
+		case 22: sw=3;break;
+		case 23: sw=4;break;
+		case 24: sw=4;break;
+		case 25: sw=4;break;
+		case 26: sw=4;break;
+		case 27: sw=4;break;
+		case 28: sw=5;break;
+		case 29: sw=5;break;
+		case 30: sw=5;break;
+		case 31: sw=5;break;
+		case 32: sw=6;break;
+		case 33: sw=6;break;
+		case 34: sw=6;break;
+		case 35: sw=6;break;
+		case 36: sw=6;break;
+		case 37: sw=7;break;
+		case 38: sw=7;break;
+		case 39: sw=7;break;
+		case 40: sw=7;break;
+		case 41: sw=7;break;
+		case 42: sw=7;break;
+		case 43: sw=7;break;
+		case 44: sw=8;break;
+		case 45: sw=8;break;
+		case 46: sw=8;break;
+		case 47: sw=8;break;
+		case 48: sw=8;break;
+		case 49: sw=8;break;
+		case 50: sw=14;break;
+		case 51: sw=14;break;
+		case 52: sw=14;break;
+		case 53: sw=14;break;
+		case 54: sw=15;break;
+		case 55: sw=15;break;
+		case 56: sw=15;break;
+		case 57: sw=15;break;
+		case 58: sw=15;break;
+		case 59: sw=13;break;
+		case 60: sw=13;break;
+		case 61: sw=13;break;
+		case 62: sw=13;break;
+		case 63: sw=13;break;
+		case 64: sw=13;break;
+		case 65: sw=9;break;
+		case 66: sw=9;break;
+		case 67: sw=9;break;
+		case 68: sw=9;break;
+		case 69: sw=9;break;
+		case 70: sw=12;break;
+		case 71: sw=12;break;
+		case 72: sw=12;break;
+		case 73: sw=12;break;
+		case 74: sw=12;break;
+		case 75: sw=12;break;
+		case 76: sw=12;break;
+		case 77: sw=12;break;
+		case 78: sw=12;break;
+		case 79: sw=10;break;
+		case 80: sw=10;break;
+		case 81: sw=10;break;
+		case 82: sw=10;break;
+		case 83: sw=11;break;
+		case 84: sw=11;break;
+		case 85: sw=11;break;
+		case 86: sw=11;break;
+		case 87: sw=11;break;
+		case 88: sw=11;break;
+		case 89: sw=16;break;
+		case 90: sw=16;break;
+		case 91: sw=16;break;
+		case 92: sw=16;break;
+		case 93: sw=16;break;
+		case 94: sw=16;break;
+		case 95: sw=17;break;
+		case 96: sw=17;break;
+		case 97: sw=17;break;
+		case 98: sw=17;break;
+		case 99: sw=17;break;
+		case 100: sw=21;break;
+		case 101: sw=21;break;
+		case 102: sw=21;break;
+		case 103: sw=21;break;
+		case 104: sw=21;break;
+		case 105: sw=21;break;
+		case 106: sw=21;break;
+		case 107: sw=20;break;
+		case 108: sw=20;break;
+		case 109: sw=20;break;
+		case 110: sw=20;break;
+		case 111: sw=20;break;
+		case 112: sw=20;break;
+		case 113: sw=19;break;
+		case 114: sw=19;break;
+		case 115: sw=19;break;
+		case 116: sw=19;break;
+		case 117: sw=19;break;
+		case 118: sw=19;break;
+		case 119: sw=18;break;
+		case 120: sw=18;break;
+		case 121: sw=18;break;
+		case 122: sw=18;break;
+		case 123: sw=18;break;
+		default: sw = 0;
+	}
+	switch(sw) {
+		case 0: str="<br>B1A4";break;
+		case 1: str="<br>block.B";break;
+		case 2: str="<br>X-5";break;
+		case 3: str="<br>BoyFriend";break;
+		case 4: str="<br>N-Train";break;
+		case 5: str="<br>BoM";break;
+		case 6: str="<br>MYNAME";break;
+                case 7: str="<br>INFINITE";break;
+                case 8: str="<br>Teen Top";break;
+                case 9: str="<br>大國男兒 THE BOSS";break;
+                case 10: str="<br>CNBLUE";break;
+                case 11: str="<br>Ledapple";break;
+                case 12: str="<br>帝國之子 ZE:A";break;
+                case 13: str="<br>Dalmatian";break;
+                case 14: str="<br>M.I.B";break;
+                case 15: str="<br>AA";break;
+                case 16: str="<br>B.A.P";break;
+                case 17: str="<br>NU'EST";break;
+                case 18: str="<br>ChAOS";break;
+                case 19: str="<br>EXO-K";break;
+                case 20: str="<br>EXO-M";break;
+                case 21: str="<br>BTOB";break;
+
+		default: str=""+n;
+	}
+	return str;
+}
+//-->
+</script>
+</head>
+
+<body>
+<div class="field">
+
+<!--##############################################################-->
+<div class="main">
+<!--##############################################################-->
+<div class="cont_in">
+<!--+++++????????+++++++++++++++++++++++++++++++++++++++++-->
+<body text="#000000" bgcolor="#ffffff" link="#DC0300" vlink="#DC0300" alink="#DC0300"> 
+<p align="left"><span class="style2"><a href="easy.html"></a><br>
+  <a href="complex.html"></a>　　</span></p> 
+<p align="center"><font size="5" >K POP Rookies 男子偶像團體排名機（加強版）</font></p> 
+<p align="center"><font color="#0200A0" font size="4" >2010年～2012年出道團體</font></p> 
+
+	
+
+
+
+<!--==============================================================-->
+<br>
+<table style="font-size:16px; font-family:'微軟正黑體',sans-serif; text-align:center; vertical-align:middle; margin-left:auto; margin-right:auto; border-collapse:separate; border-spacing:20px 5px;" align="center">
+	<tr>
+
+		<td id="battleNumber" colspan="3" style="padding-bottom: 10px;">
+			&nbsp;
+		</td>
+	</tr>
+	<tr>
+		<td id="leftField" style="background-color:#B0AFFF; width:180px; height:180px; border:3px double #666666;" onClick="if(finishFlag==0)sortList(-1);" rowspan="3">
+			&nbsp;
+		</td>
+		<td id="middleField" style="background-color:#FDFF73; width:140px; border:1px solid #666666;" onClick="if(finishFlag==0)sortList(0);">
+
+			平手／都很喜歡
+		</td>
+		<td id="rightField" style="background-color:#FFAFFE; width:180px; height:180px; border:3px double #666666;" onClick="if(finishFlag==0)sortList(1);" rowspan="3">
+			&nbsp;
+		</td>
+	</tr>
+	<tr>
+		<td id="middleField" style="background-color:#CDFFCE; width:140px; border:1px solid #666666;" onClick="if(finishFlag==0)sortList(0);">
+			都可以／都有好感
+		</td>
+
+	</tr>
+	<tr>
+		<td id="middleField" style="background-color:#FFE7CD; width:140px; border:1px solid #666666;" onClick="if(finishFlag==0)sortList(0);">
+			都不喜歡／不認識
+		</td>
+
+	</tr>
+</table><br><br>
+<div id="resultField" style="text-align:center;">
+
+
+</div>
+
+<div id="resultField" style="text-align:center;">
+<p><font color="#0200A0" size="3"><BR>
+  部分偶像的名字字樣無法顯示，改以相近字代替</font></p>
+<BR>
+  <p><font color="#999999" size="3">Original from marineturtle.sakura.ne.jp</font></p>
+<p><font color="#999999" size="3">modified by N.Masaki</font></p>
+  <p><font color="#999999" size="3">remade by <a href="http://eventuallytherookies.blogspot.com/" target="_blank">Eventuallytherookies</a></font>    </p>
+  <p>&nbsp;</p>
+</div> 
+
+
+<div class="author" style="text-align:right;">
+
+<br>
+
+</div>
+<script type="text/javascript">
+<!--
+	initList();
+	showImage();
+//-->
+</script>
+
+<!--==============================================================-->
+</div><!--class="cont_in"-->
+</div><!--class="main"-->
+
+<div class="footer">&nbsp;</div>
+
+</div><!--class="field"-->
+
+<script type="text/javascript"><!--
+var fc2footerparam = 'charset=' + (document.charset ? document.charset : document.characterSet) + '&url=' + document.location + '&service=0&r=' + Math.floor(Math.random()*99999999999);
+var fc2footertag = '<' + 'script src="//vip.chps-api.fc2.com/apis/footer/?' + fc2footerparam + '" charset="UTF-8"><' + '/script>';
+document.write(fc2footertag);
+//--></script>
+<!-- FC2, inc.-->
+<img src="//media.fc2.com/counter_img.php?id=50" style="visibility:hidden" alt="inserted by FC2 system" width="0" height="0">
+<!-- FC2, inc.-->
+</body>
+</html>
