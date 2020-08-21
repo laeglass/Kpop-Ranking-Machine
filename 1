@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <meta http-equiv="Content-Script-Type" content="text/javascript">
 <link rel="stylesheet" href="../scrstyle.css" type="text/css">
-<title>排名機（TREASURE）</title>
+<title>排名機（Wanna One）</title>
 <script type="text/javascript">
 <!--
 //+++++++++++++++++++++
@@ -21,7 +21,7 @@ else if (bName=="N") { iNN = true; }
 //+++++++++++++++++++++++++++++++++++++
 
 //團體
-var numMember = 12;
+var numMember = 11;
 var lstMember = new Array();
 var parent = new Array();
 var equal = new Array();
@@ -230,7 +230,7 @@ function showResult() {
 	var i;
 
 	str += "<table style=\"width:200px; font-size:14px; line-height:120%; margin-left:auto; margin-right:auto; border:1px solid #666666; border-collapse:collapse\" align=\"center\">";
-	str += "<tr><td style=\"color:#ffffff; background-color:#666666; text-align:center;\">順次<\/td><td style=\"color:#ffffff; background-color:#666666; text-align:center;\">偶像<\/td><\/tr>";
+	str += "<tr><td style=\"color:#ffffff; background-color:#666666; text-align:center;\">名次<\/td><td style=\"color:#ffffff; background-color:#666666; text-align:center;\">偶像<\/td><\/tr>";
 
 	for (i=numMember-1; i>=0; i--) {
 		str += "<tr><td style=\"border:1px solid #666666; text-align:right; padding-right:5px;\">"+ranking+"<\/td><td style=\"border:1px solid #666666; padding-left:5px;\">"+toName(lstMember[0][i])+"<\/td><\/tr>";
@@ -272,7 +272,7 @@ function showImage() {
 	numQuestion++;
 }
 
-//團名與經紀公司+++++++++++++++++++++++++
+//團名+++++++++++++++++++++++++
 function toDisp(n){
 	var str = toName(n)+toUnit(n);
 	return str;
@@ -282,18 +282,17 @@ function toDisp(n){
 function toName(n) {
 	var str;
 	switch(n) {
-		case 1: str="崔玹碩";break;
-		case 2: str="朴志焄";break;
-		case 3: str="YOSHI";break;
-		case 4: str="金俊奎";break;
-		case 5: str="MASHIHO";break;
-		case 6: str="尹材赫";break;
-		case 7: str="ASAHI";break;
-		case 8: str="方藝潭";break;
-		case 9: str="金道榮";break;
-		case 10: str="HARUTO";break;
-		case 11: str="朴炡禹";break;
-		case 12: str="蘇庭煥";break;
+		case 1: str="尹智聖";break;
+		case 2: str="河成雲";break;
+		case 3: str="黃旼炫";break;
+		case 4: str="邕聖祐";break;
+		case 5: str="金在奐";break;
+		case 6: str="朴志訓";break;
+		case 7: str="賴冠霖";break;
+		case 8: str="李大輝";break;
+		case 9: str="裴珍映";break;
+		case 10: str="姜丹尼爾";break;
+		case 11: str="朴佑鎮";break;
 	}
 	return str;
 }
@@ -338,7 +337,7 @@ function toUnit(n) {
 <body text="#000000" bgcolor="#ffffff" link="#DC0300" vlink="#DC0300" alink="#DC0300"> 
 <p align="left"><span class="style2"><a href="easy.html"></a><br>
   <a href="complex.html"></a>　　</span></p> 
-<p align="center"><font size="5" >排名機（TREASURE）</font></p> 
+<p align="center"><font size="5" >排名機（Wanna One）</font></p> 
 <p align="center"><font color="#0200A0" font size="4" ></font></p> 
 
 	
@@ -360,7 +359,7 @@ function toUnit(n) {
 		</td>
 		<td id="middleField" style="background-color:#FDFF73; width:140px; border:1px solid #666666;" onClick="if(finishFlag==0)sortList(0);">
 
-			平手／都很喜歡
+			都喜歡
 		</td>
 		<td id="rightField" style="background-color:#FFAFFE; width:180px; height:180px; border:3px double #666666;" onClick="if(finishFlag==0)sortList(1);" rowspan="3">
 			&nbsp;
@@ -368,13 +367,13 @@ function toUnit(n) {
 	</tr>
 	<tr>
 		<td id="middleField" style="background-color:#CDFFCE; width:140px; border:1px solid #666666;" onClick="if(finishFlag==0)sortList(0);">
-			都可以／都有好感
+			平手
 		</td>
 
 	</tr>
 	<tr>
 		<td id="middleField" style="background-color:#FFE7CD; width:140px; border:1px solid #666666;" onClick="if(finishFlag==0)sortList(0);">
-			都不喜歡／不認識
+			不認識
 		</td>
 
 	</tr>
